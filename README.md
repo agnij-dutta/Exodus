@@ -34,6 +34,7 @@ Exodus is a cutting-edge Cross-Chain NFT Platform that enables users to mint, tr
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/yourusername/exodus.git
+   git clone https://github.com/wormhole-foundation/wormhole
    cd exodus
    ```
 2. **Install the required dependencies**:
