@@ -34,10 +34,12 @@ Exodus is a cutting-edge Cross-Chain NFT Platform that enables users to mint, tr
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/yourusername/exodus.git
-   cd exodus```
+   cd exodus
+   ```
 2. **Install the required dependencies**:
    ```bash
-   npm install```
+   npm install
+   ```
 3. **Configure the environment variables in .env**:
    ```dotenv
    MONGO_URI=mongodb://localhost:27017/exodus
@@ -49,16 +51,19 @@ Exodus is a cutting-edge Cross-Chain NFT Platform that enables users to mint, tr
    SOL_PROGRAM_ID=YOUR_SOLANA_PROGRAM_ID
    POLYGON_RPC_URL=https://polygon-rpc.com
    BSC_RPC_URL=https://bsc-dataseed.binance.org/
-   AVALANCHE_RPC_URL=https://api.avax.network/ext/bc/C/rpc```
+   AVALANCHE_RPC_URL=https://api.avax.network/ext/bc/C/rpc
+   ```
 4. **Compile and deploy the smart contracts for each blockchain:**
    ```bash
    cd ethereum
    npx hardhat compile
    npx hardhat run scripts/deploy.js --network rinkeby
-   # Repeat for Polygon, BSC, and Avalanche```
+   # Repeat for Polygon, BSC, and Avalanche
+   ```
 5. **Start the backend server**:
    ```bash
-   npm run start```
+   npm run start
+   ```
 
 ## Usage
 You can interact with the API using tools like Postman or CURL. Here are the available endpoints:
