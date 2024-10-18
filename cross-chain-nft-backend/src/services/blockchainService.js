@@ -3,6 +3,14 @@ const { Connection, Keypair, PublicKey, Transaction, SystemProgram, sendAndConfi
 const { Program, AnchorProvider } = require('@project-serum/anchor');
 const { SPL_TOKEN_PROGRAM_ID, Token } = require('@solana/spl-token');
 const NFT_ABI = require('../abi/NFT.json'); // Ensure you have the ABI of the NFT contract
+const { Bridge, ChainId, transferNFT } = require('@certusone/wormhole-sdk');
+
+// Wormhole provider addresses
+const ETH_WORMHOLE_BRIDGE_ADDRESS = "0x..."; // Replace with actual Wormhole bridge address
+const POLYGON_WORMHOLE_BRIDGE_ADDRESS = "0x...";
+const BSC_WORMHOLE_BRIDGE_ADDRESS = "0x...";
+const AVAX_WORMHOLE_BRIDGE_ADDRESS = "0x...";
+
 
 // Minting on Ethereum
 const mintOnEthereum = async (metadata) => {
@@ -66,6 +74,25 @@ const mintOnSolana = async (metadata) => {
     });
 
     return tx;
+};
+
+
+// Initiate cross-chain NFT transfer
+const transferNFTToChain = async (chain, tokenId, destinationChain, recipient) => {
+    let bridge;
+    if (chain === 'ethereum') {
+        bridge = new Bridge(ETH_WORMHOLE_BRIDGE_ADDRESS, ChainId.ETH);
+    } else if (chain === 'polygon') {
+        bridge = new Bridge(POLYGON_WORMHOLE_BRIDGE_ADDRESS, ChainId.POLYGON);
+    } else if (chain === 'bsc') {
+        bridge = new Bridge(BSC_WORMHOLE_BRIDGE_ADDRESS, ChainId.BSC);
+    } else if (chain === 'avalanche') {
+        bridge = new Bridge(AVAX_WORMHOLE_BRIDGE_ADDRESS, ChainId.AVALANCHE);
+    }
+
+    // Use Wormhole to transfer NFT
+    const receipt = await transferNFT(bridge, tokenId, destinationChain, recipient);
+    return receipt;
 };
 
 module.exports = {

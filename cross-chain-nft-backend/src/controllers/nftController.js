@@ -1,5 +1,6 @@
 const { mintOnEthereum, mintOnSolana, mintOnPolygon, mintOnBSC, mintOnAvalanche } = require('../services/blockchainService');
 const NFT = require('../models/NFT');
+const { transferNFTToChain } = require('../services/blockchainService');
 
 const mintNFT = async (req, res) => {
     const { chain, metadata } = req.body;
@@ -26,7 +27,28 @@ const mintNFT = async (req, res) => {
 // Additional methods for fetching and burning NFTs
 const fetchNFT = async (req, res) => {
     const { chain, tokenId } = req.params;
-    // Fetch from MongoDB or blockchain based on chain and tokenId
+
+    try {
+        // First, check if the NFT is stored in MongoDB
+        const nft = await NFTModel.findOne({ chain, tokenId });
+        if (nft) {
+            return res.json({ success: true, nft });
+        }
+
+        // If not in MongoDB, fetch from the blockchain
+        const provider = getProviderForChain(chain);
+        if (!provider) {
+            return res.status(400).json({ success: false, error: 'Unsupported chain' });
+        }
+
+        // Interact with the blockchain to get token URI
+        const contract = new ethers.Contract(process.env[`${chain.toUpperCase()}_NFT_CONTRACT_ADDRESS`], nftABI, provider);
+        const tokenURI = await contract.tokenURI(tokenId);
+
+        return res.json({ success: true, tokenId, tokenURI });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 };
 
 const listNFTs = async (req, res) => {
@@ -38,5 +60,19 @@ const burnNFT = async (req, res) => {
     const { tokenId } = req.body;
     // Burn the NFT on the corresponding blockchain
 };
+
+
+
+const transferNFT = async (req, res) => {
+    const { chain, tokenId, destinationChain, recipient } = req.body;
+
+    try {
+        const receipt = await transferNFTToChain(chain, tokenId, destinationChain, recipient);
+        return res.json({ success: true, receipt });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
 
 module.exports = { mintNFT, fetchNFT, listNFTs, burnNFT };

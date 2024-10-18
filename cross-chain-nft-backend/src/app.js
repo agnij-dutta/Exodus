@@ -12,6 +12,8 @@ app.post('/api/nft/mint', mintNFT);
 app.get('/api/nft/:chain/:tokenId', fetchNFT);
 app.get('/api/nft/list', listNFTs);
 app.post('/api/nft/burn', burnNFT);
+app.post('/api/nft/transfer', transferNFT);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
