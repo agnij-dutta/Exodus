@@ -53,15 +53,44 @@ const fetchNFT = async (req, res) => {
 
 const listNFTs = async (req, res) => {
     const { owner } = req.query;
-    // List NFTs owned by the user from MongoDB
+
+    try {
+        // Fetch all NFTs from MongoDB that are owned by the specified owner
+        const nfts = await NFTModel.find({ owner });
+
+        if (nfts.length === 0) {
+            return res.json({ success: true, message: 'No NFTs found for this user' });
+        }
+
+        return res.json({ success: true, nfts });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 };
 
 const burnNFT = async (req, res) => {
-    const { tokenId } = req.body;
-    // Burn the NFT on the corresponding blockchain
+    const { chain, tokenId } = req.body;
+
+    try {
+        // Get the provider for the chain
+        const provider = getProviderForChain(chain);
+        const signer = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+        // Connect to the NFT contract
+        const contract = new ethers.Contract(process.env[`${chain.toUpperCase()}_NFT_CONTRACT_ADDRESS`], nftABI, signer);
+
+        // Burn the NFT on the blockchain
+        const tx = await contract.burn(tokenId);
+        await tx.wait();
+
+        // Remove from MongoDB
+        await NFTModel.deleteOne({ chain, tokenId });
+
+        return res.json({ success: true, message: `NFT with ID ${tokenId} has been burned and removed from database.` });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 };
-
-
 
 const transferNFT = async (req, res) => {
     const { chain, tokenId, destinationChain, recipient } = req.body;
